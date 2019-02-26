@@ -7,15 +7,23 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.sound,.badge, .carPlay], completionHandler: { (granted, error) in
+            if granted {
+                print("允許")
+            } else {
+                print("不允許")
+            }
+        })
+        UNUserNotificationCenter.current().delegate = self
         return true
     }
 
@@ -41,6 +49,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+}
 
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        // Get the meeting ID from the original notification.
+        let userInfo = response.notification.request.content.userInfo
+        let meetingID = userInfo["MEETING_ID"] as! String
+        let userID = userInfo["USER_ID"] as! String
+        
+        // Perform the task associated with the action.
+        switch response.actionIdentifier {
+        case "ACCEPT_ACTION":
+            print("ACCEPT_ACTION")
+            break
+        case "DECLINE_ACTION":
+            print("DECLINE_ACTION")
+            break
+        default:
+            break
+        }
+        // Always call the completion handler when done.
+        completionHandler()
+    }
+
+    
 }
 
